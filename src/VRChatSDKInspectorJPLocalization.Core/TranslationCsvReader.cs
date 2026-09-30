@@ -1,4 +1,4 @@
-using Microsoft.VisualBasic.FileIO;
+using System.Text;
 
 namespace VRChatSDKInspectorJPLocalization.Core;
 
@@ -13,41 +13,98 @@ public static class TranslationCsvReader
         return Read(reader);
     }
 
-    /// <summary>引用符と複数行に対応した翻訳CSVの解析</summary>
+    /// <summary>コメント・引用符・複数行に対応した翻訳CSVの解析</summary>
     public static IReadOnlyList<Translation> Read(TextReader reader)
     {
-        using var parser = new TextFieldParser(reader)
+        using var records = ReadRecords(Normalize(reader.ReadToEnd())).GetEnumerator();
+        if (!records.MoveNext() || !records.Current.Fields.SequenceEqual(new[] { "English", "Japanese" }))
+            throw new InvalidDataException("CSVの見出しは English,Japanese にしてください。");
+        var result = new List<Translation>();
+        var ids = new HashSet<string>(StringComparer.Ordinal);
+        while (records.MoveNext())
         {
-            TextFieldType = FieldType.Delimited,
-            HasFieldsEnclosedInQuotes = true,
-            TrimWhiteSpace = false
-        };
-        parser.SetDelimiters(",");
-        try
-        {
-            var header = parser.ReadFields();
-            if (header is null || !header.SequenceEqual(new[] { "English", "Japanese" }))
-                throw new InvalidDataException("CSVの見出しは English,Japanese にしてください。");
-            var result = new List<Translation>();
-            var ids = new HashSet<string>(StringComparer.Ordinal);
-            while (!parser.EndOfData)
-            {
-                var fields = parser.ReadFields();
-                if (fields is null || fields.Length != 2 || fields.Any(string.IsNullOrWhiteSpace))
-                    throw new InvalidDataException($"CSVの{parser.LineNumber}行付近に空欄または列数の誤りがあります。");
-                var english = Normalize(fields[0]);
-                var japanese = Normalize(fields[1]);
-                if (!ids.Add(english))
-                    throw new InvalidDataException($"CSVのEnglishが重複しています: {english}");
-                result.Add(new Translation(english, japanese));
-            }
-            if (result.Count == 0)
-                throw new InvalidDataException("CSVに翻訳がありません。");
-            return result;
+            var (line, fields) = records.Current;
+            if (fields.Length != 2 || fields.Any(string.IsNullOrWhiteSpace))
+                throw new InvalidDataException($"CSVの{line}行に空欄または列数の誤りがあります。");
+            if (!ids.Add(fields[0]))
+                continue; // コンポーネント間の重複は先に記載された訳へ統合
+            result.Add(new Translation(fields[0], fields[1]));
         }
-        catch (MalformedLineException ex)
+        if (result.Count == 0)
+            throw new InvalidDataException("CSVに翻訳がありません。");
+        return result;
+    }
+
+    /// <summary>引用符の外側にあるコメント行のみを除外したCSVレコードの読み込み</summary>
+    private static IEnumerable<(int Line, string[] Fields)> ReadRecords(string text)
+    {
+        var position = 0;
+        var line = 1;
+        while (position < text.Length)
         {
-            throw new InvalidDataException($"CSVの引用符などの形式が不正です（{ex.LineNumber}行）。", ex);
+            var first = position;
+            while (first < text.Length && text[first] is ' ' or '\t') first++;
+            if (first == text.Length) yield break;
+            if (text[first] is '#' or '\n')
+            {
+                var end = text.IndexOf('\n', first);
+                if (end < 0) yield break;
+                position = end + 1;
+                line++;
+                continue;
+            }
+
+            var startLine = line;
+            var fields = new List<string>();
+            var field = new StringBuilder();
+            var quoted = false;
+            var closedQuote = false;
+            while (position < text.Length)
+            {
+                var c = text[position++];
+                if (quoted)
+                {
+                    if (c == '"')
+                    {
+                        if (position < text.Length && text[position] == '"')
+                        {
+                            field.Append('"');
+                            position++;
+                        }
+                        else { quoted = false; closedQuote = true; }
+                    }
+                    else
+                    {
+                        field.Append(c);
+                        if (c == '\n') line++;
+                    }
+                    continue;
+                }
+                if (c is ',' or '\n')
+                {
+                    if (c == '\n') { line++; break; }
+                    fields.Add(field.ToString());
+                    field.Clear();
+                    closedQuote = false;
+                }
+                else if (closedQuote)
+                {
+                    if (c is not (' ' or '\t'))
+                        throw new InvalidDataException($"CSVの{line}行で閉じ引用符の後に不正な文字があります。");
+                }
+                else if (c == '"')
+                {
+                    if (field.ToString().Any(character => character is not (' ' or '\t')))
+                        throw new InvalidDataException($"CSVの{line}行で引用符の位置が不正です。");
+                    field.Clear();
+                    quoted = true;
+                }
+                else field.Append(c);
+            }
+            if (quoted)
+                throw new InvalidDataException($"CSVの{startLine}行から始まる引用符が閉じられていません。");
+            fields.Add(field.ToString());
+            yield return (startLine, fields.ToArray());
         }
     }
 

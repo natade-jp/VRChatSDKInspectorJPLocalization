@@ -27,11 +27,57 @@ internal static class Program
         Test("CSV preserves whitespace", () => Equal(" x ", ReadCsv("English,Japanese\n x ,翻訳\n")[0].English));
         Test("CSV CRLF fields normalized", () => Equal("a\nb", ReadCsv("English,Japanese\r\n\"a\r\nb\",日本語\r\n")[0].English));
         Test("CSV bad header", () => Throws<InvalidDataException>(() => ReadCsv("Japanese,English\nあ,a")));
-        Test("CSV duplicate", () => Throws<InvalidDataException>(() => ReadCsv("English,Japanese\nx,一\nx,二")));
+        Test("CSV identical duplicates merged", () =>
+        {
+            var data = ReadCsv("English,Japanese\n# コンポーネントA\nx,一\n# コンポーネントB\nx,一\n");
+            Equal(1, data.Count);
+            Equal("一", data[0].Japanese);
+        });
+        Test("CSV different translations keep first", () =>
+        {
+            var data = ReadCsv("English,Japanese\nx,一\ny,三\nx,二");
+            Equal(2, data.Count);
+            Equal("一", data[0].Japanese);
+            Equal("y", data[1].English);
+        });
+        Test("CSV duplicate normalized multiline IDs", () => Equal(1, ReadCsv("English,Japanese\n\"a\r\nb\",一\n\"a\nb\",二").Count));
+        Test("CSV duplicates produce a single PO entry", () =>
+        {
+            var data = ReadCsv("English,Japanese\nPull,引っ張り\nPull,引く\nPull,引っ張り\n");
+            var installed = PoDocument.Install(Original, data);
+            Equal(3, PoSyntax.ReadMessageIds(installed).Count);
+            True(installed.Contains("msgstr \"引っ張り\"", StringComparison.Ordinal));
+            True(!installed.Contains("msgstr \"引く\"", StringComparison.Ordinal));
+            Equal(Original, PoDocument.Uninstall(installed));
+        });
         Test("CSV empty field", () => Throws<InvalidDataException>(() => ReadCsv("English,Japanese\nx,")));
+        Test("CSV malformed duplicate still rejected", () => Throws<InvalidDataException>(() => ReadCsv("English,Japanese\nx,一\nx,")));
         Test("CSV extra field", () => Throws<InvalidDataException>(() => ReadCsv("English,Japanese\nx,y,z")));
         Test("CSV broken quotes", () => Throws<InvalidDataException>(() => ReadCsv("English,Japanese\n\"x,y")));
         Test("CSV no entries", () => Throws<InvalidDataException>(() => ReadCsv("English,Japanese\n")));
+        Test("CSV component comments and blank lines", () =>
+        {
+            var data = ReadCsv("# 辞書の説明\n\nEnglish,Japanese\n# コンポーネントA\nPull,引っ張り\n  \t# コンポーネントB,\"未閉鎖の引用符もコメント\nSpring,ばね\n# 最終行");
+            Equal(2, data.Count);
+            Equal("Spring", data[1].English);
+        });
+        Test("CSV hashes inside fields preserved", () =>
+        {
+            var data = ReadCsv("English,Japanese\n\"#Label\",\"#ラベル\"\nA#B,訳 # 注釈ではない\n");
+            Equal("#Label", data[0].English);
+            Equal("#ラベル", data[0].Japanese);
+            Equal("訳 # 注釈ではない", data[1].Japanese);
+        });
+        Test("CSV quoted comment-like and blank lines preserved", () =>
+        {
+            var data = ReadCsv("English,Japanese\n\"first\n# not a comment\n\nlast\",\"一行目\n  # 本文\n\n最終行\"\n");
+            Equal("first\n# not a comment\n\nlast", data[0].English);
+            Equal("一行目\n  # 本文\n\n最終行", data[0].Japanese);
+        });
+        Test("CSV trailing text after quote rejected", () => Throws<InvalidDataException>(() => ReadCsv("English,Japanese\n\"x\"bad,訳")));
+        Test("CSV quote in unquoted field rejected", () => Throws<InvalidDataException>(() => ReadCsv("English,Japanese\nx\"bad,訳")));
+        Test("CSV comments only rejected", () => Throws<InvalidDataException>(() => ReadCsv("# 説明のみ\n")));
+        Test("CSV CRLF comments and whitespace", () => Equal("訳", ReadCsv("  # 説明\r\nEnglish,Japanese\r\n \t\r\nx,訳\r\n \t")[0].Japanese));
         Test("PO escaping round trip", () =>
         {
             const string value = "日本語\"\\\n\t\r\a\b\f\v";
