@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "WinForms (Release)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/src/VRChatSDKInspectorJPLocalization/bin/Release/net8.0-windows/VRChatSDKInspectorJPLocalization.dll",
+      "cwd": "${workspaceFolder}"
+    }
+  ]
+}
