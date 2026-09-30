@@ -32,7 +32,8 @@ public sealed class MainForm : Form
         Text = AppConstants.AppName;
         AutoScaleMode = AutoScaleMode.Dpi;
         Font = new Font("Yu Gothic UI", 10F);
-        MinimumSize = new Size(780, 540);
+        FormBorderStyle = FormBorderStyle.FixedSingle;
+        MaximizeBox = false;
         ClientSize = new Size(850, 540);
         StartPosition = FormStartPosition.CenterScreen;
         var layout = new TableLayoutPanel { Dock = DockStyle.Fill, Padding = new Padding(18), ColumnCount = 2, RowCount = 11, AutoScroll = true };
