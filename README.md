@@ -128,6 +128,8 @@ dotnet run --project tests/VRChatSDKInspectorJPLocalization.Tests -c Release -- 
 
 Release / `win-x64` / Self-contained / Single Fileで発行します。配布物は`artifacts/publish/win-x64/VRChatSDKInspectorJPLocalization.exe`です。CSVと.NET 10 Runtimeは含まれるため、利用者によるCSVの配置や.NET Runtimeのインストールは不要です。WinFormsの互換性を優先し、トリミングは無効です。ネイティブライブラリは起動時に.NETの一時領域へ展開されます。
 
+配布容量を抑えるため、`EnableCompressionInSingleFile=true`で埋め込みアセンブリの圧縮を有効にしています。利用者が手動で解凍する必要はありません。起動時にメモリ上で解凍するため、圧縮なしの場合より起動に時間がかかる場合があります。発行設定を変更する際は、サイズと起動動作を確認してください。
+
 `build.bat`、`publish.bat`には管理者権限は不要で、Unityや`ja.po`へ触れる処理は含みません。出力、キャッシュ、発行成果物はGit管理から除外します。
 
 ## 翻訳データの更新

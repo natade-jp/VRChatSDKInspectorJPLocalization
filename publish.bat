@@ -2,7 +2,7 @@
 setlocal
 pushd "%~dp0"
 if errorlevel 1 exit /b 1
-dotnet publish src\VRChatSDKInspectorJPLocalization\VRChatSDKInspectorJPLocalization.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:PublishTrimmed=false -p:DebugType=None -p:DebugSymbols=false -o artifacts\publish\win-x64
+dotnet publish src\VRChatSDKInspectorJPLocalization\VRChatSDKInspectorJPLocalization.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:PublishTrimmed=false -p:DebugType=None -p:DebugSymbols=false -o artifacts\publish\win-x64
 if errorlevel 1 goto :failed
 echo Publish succeeded.
 echo Output: %~dp0artifacts\publish\win-x64\
