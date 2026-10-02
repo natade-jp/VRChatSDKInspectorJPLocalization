@@ -143,6 +143,8 @@ Gravity Falloff,重力減衰
 
 更新時は`AppConstants.TranslationVersion`も変更し、テスト・ビルド・発行を実行します。CSVはEmbedded Resourceとして組み込まれるため、配布EXEの隣へCSVを配置しても翻訳は変更されません。Unityの対応バージョンや案内URL、マーカーも`AppConstants`で管理します。日本語化案内のURLは暫定的なUnity公式マニュアルで、専用案内ページへの差し替えTODOがあります。
 
+画面の収録翻訳件数は、起動時に`TranslationCsvReader.ReadEmbedded()`で読み込んだ重複除去後の件数です。`TranslationVersion`は画面には表示せず、POの専用ブロック内に記録する内部情報として維持しています。埋め込みCSVの読み込みに失敗した場合は件数を「読み込み失敗」と表示し、インストール・再インストールを無効にします。
+
 ## ライセンス
 
 未選択です。`LICENSE`は未選択であることを示すファイルで、特定のOSSライセンス本文ではありません。権利者によるライセンス選択後に更新してください。

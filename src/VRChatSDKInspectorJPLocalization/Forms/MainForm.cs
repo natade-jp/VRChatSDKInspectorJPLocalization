@@ -7,12 +7,15 @@ namespace VRChatSDKInspectorJPLocalization.Forms;
 
 public sealed class MainForm : Form
 {
+    private const string UsageNotes = "\n操作前にUnity Editorを終了してください。変更前のバックアップはja.poと同じ場所に保存します。\n"
+        + "このツールはUnityの共有ファイルを変更するため、同じEditorを使う全プロジェクトに影響します。";
     private readonly TextBox pathBox = new() { ReadOnly = true, Dock = DockStyle.Fill };
     private readonly Label unityStatus = NewLabel();
     private readonly Label packStatus = NewLabel();
     private readonly Label poStatus = NewLabel();
     private readonly Label adminStatus = NewLabel();
     private readonly Label translationStatus = NewLabel();
+    private readonly Label translationSummary = NewLabel("収録翻訳：確認中…" + UsageNotes);
     private readonly Button browseButton = NewButton("インストール先を変更…");
     private readonly Button refreshButton = NewButton("状態を再確認");
     private readonly Button elevateButton = NewButton("管理者権限で再起動");
@@ -22,6 +25,7 @@ public sealed class MainForm : Form
     private AppSettings settings = new();
     private bool busy;
     private bool validTarget;
+    private bool translationDataAvailable;
     private InstallationState state = InstallationState.Abnormal;
     private readonly string? startupPath;
 
@@ -56,9 +60,7 @@ public sealed class MainForm : Form
         var actions = NewFlow();
         actions.Controls.AddRange(new Control[] { elevateButton, installButton, reinstallButton, uninstallButton });
         AddWide(layout, actions, 9);
-        AddWide(layout, NewLabel("翻訳データ: " + AppConstants.TranslationVersion + "（動作確認用3件）\n"
-            + "操作前にUnity Editorを終了してください。変更前のバックアップはja.poと同じ場所に保存します。\n"
-            + "このツールはUnityの共有ファイルを変更するため、同じEditorを使う全プロジェクトに影響します。"), 10);
+        AddWide(layout, translationSummary, 10);
         Controls.Add(layout);
         browseButton.Click += async (_, _) => await BrowseAsync();
         refreshButton.Click += async (_, _) => await RefreshStatusAsync(true);
@@ -74,6 +76,20 @@ public sealed class MainForm : Form
     /// <summary>保存済み設定と標準パスによる起動時確認</summary>
     private async Task InitializeAsync()
     {
+        busy = true;
+        UpdateButtons();
+        try
+        {
+            var count = await Task.Run(() => TranslationCsvReader.ReadEmbedded().Count);
+            translationSummary.Text = $"収録翻訳：{count}件" + UsageNotes;
+            translationDataAvailable = true;
+        }
+        catch (Exception ex)
+        {
+            translationSummary.Text = "収録翻訳：読み込み失敗" + UsageNotes;
+            ShowError("収録翻訳を読み込めないため、インストールと再インストールは使用できません。", ex);
+        }
+        finally { busy = false; UpdateButtons(); }
         try { settings = AppSettings.Load(); }
         catch (Exception ex) { ShowError("設定を読み込めませんでした。標準パスで確認します。", ex); }
         pathBox.Text = startupPath ?? settings.UnityPath ?? UnityDetector.DefaultPath;
@@ -127,7 +143,7 @@ public sealed class MainForm : Form
             }
             var info = await Task.Run(() => TranslationInstaller.Inspect(unity.PoPath));
             state = info.State;
-            translationStatus.Text = info.Message + (info.Version is null ? "" : $"（データ: {info.Version}）");
+            translationStatus.Text = info.Message;
             translationStatus.ForeColor = state == InstallationState.Abnormal ? Color.Firebrick : SystemColors.ControlText;
             if (notify && state == InstallationState.Abnormal)
                 MessageBox.Show(this, info.Message + "\nファイルは変更しません。バックアップと内容を確認してください。", Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -148,8 +164,9 @@ public sealed class MainForm : Form
         var writable = !busy && validTarget && admin;
         browseButton.Enabled = refreshButton.Enabled = !busy;
         elevateButton.Enabled = !busy && !admin;
-        installButton.Enabled = writable && state == InstallationState.NotInstalled;
-        reinstallButton.Enabled = uninstallButton.Enabled = writable && state == InstallationState.Installed;
+        installButton.Enabled = writable && translationDataAvailable && state == InstallationState.NotInstalled;
+        reinstallButton.Enabled = writable && translationDataAvailable && state == InstallationState.Installed;
+        uninstallButton.Enabled = writable && state == InstallationState.Installed;
         UseWaitCursor = busy;
     }
 
