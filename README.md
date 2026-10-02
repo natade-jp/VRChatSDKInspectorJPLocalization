@@ -90,9 +90,9 @@ PO構文の参考: [GNU gettextのPOエントリ仕様](https://www.gnu.org/soft
 
 ## 開発とビルド
 
-Windowsと**.NET 8 SDK**が必要です。互換性のある新しいSDKからも.NET 8ターゲットをビルドできます。初回の復元・発行で必要な.NETの参照パックやランタイムパックを取得するため、ネットワーク接続が必要になる場合があります。
+Windowsと**.NET 10 SDK**が必要です。アプリとテストは`net10.0-windows`、翻訳処理ライブラリは`net10.0`を対象としています。初回の復元・発行で必要な.NETの参照パックやランタイムパックを取得するため、ネットワーク接続が必要になる場合があります。
 
-Visual Studioでは.NET 8対応のVisual Studio 2022と「.NETデスクトップ開発」ワークロードを使用してsolutionを開きます。VSCodeではC#拡張と.NET SDKを用意します。`.vscode/tasks.json`と`launch.json`を含んでいます。
+Visual Studioでは.NET 10対応のVisual Studio 2026（18.0以降、使用するSDKに対応したバージョン）と「.NETデスクトップ開発」ワークロードを使用してsolutionを開きます。VSCodeではC#拡張と.NET 10 SDKを用意します。`.vscode/tasks.json`と`launch.json`を含んでいます。SDKとVisual Studioの組み合わせは[公式の互換性情報](https://learn.microsoft.com/en-us/dotnet/core/porting/versioning-sdk-msbuild-vs)を参照してください。
 
 リポジトリルートから実行します。
 
@@ -102,7 +102,7 @@ dotnet build
 .\build.bat
 ```
 
-`build.bat`はrestoreとReleaseビルドを実行します。エラーで中断して終了コード1、成功時は終了コード0を返し、出力先を表示します。英語のコンソール表示でバッチの日本語文字化けを避けています。出力先は`src/VRChatSDKInspectorJPLocalization/bin/Release/net8.0-windows/`です。実行ファイルは`VRChatSDKInspectorJPLocalization.exe`です。開発用ビルドの起動には.NET 8 Desktop Runtimeが必要です。
+`build.bat`はrestoreとReleaseビルドを実行します。エラーで中断して終了コード1、成功時は終了コード0を返し、出力先を表示します。英語のコンソール表示でバッチの日本語文字化けを避けています。出力先は`src/VRChatSDKInspectorJPLocalization/bin/Release/net10.0-windows/`です。実行ファイルは`VRChatSDKInspectorJPLocalization.exe`です。開発用ビルドの起動には.NET 10 Desktop Runtimeが必要です。
 
 ```powershell
 dotnet run --project tests/VRChatSDKInspectorJPLocalization.Tests -c Release
@@ -126,7 +126,7 @@ dotnet run --project tests/VRChatSDKInspectorJPLocalization.Tests -c Release -- 
 .\publish.bat
 ```
 
-Release / `win-x64` / Self-contained / Single Fileで発行します。配布物は`artifacts/publish/win-x64/VRChatSDKInspectorJPLocalization.exe`です。CSVと.NET Runtimeは含まれるため、利用者によるCSVの配置や.NET Runtimeのインストールは不要です。WinFormsの互換性を優先し、トリミングは無効です。ネイティブライブラリは起動時に.NETの一時領域へ展開されます。
+Release / `win-x64` / Self-contained / Single Fileで発行します。配布物は`artifacts/publish/win-x64/VRChatSDKInspectorJPLocalization.exe`です。CSVと.NET 10 Runtimeは含まれるため、利用者によるCSVの配置や.NET Runtimeのインストールは不要です。WinFormsの互換性を優先し、トリミングは無効です。ネイティブライブラリは起動時に.NETの一時領域へ展開されます。
 
 `build.bat`、`publish.bat`には管理者権限は不要で、Unityや`ja.po`へ触れる処理は含みません。出力、キャッシュ、発行成果物はGit管理から除外します。
 

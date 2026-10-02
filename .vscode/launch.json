@@ -6,7 +6,7 @@
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build",
-      "program": "${workspaceFolder}/src/VRChatSDKInspectorJPLocalization/bin/Release/net8.0-windows/VRChatSDKInspectorJPLocalization.dll",
+      "program": "${workspaceFolder}/src/VRChatSDKInspectorJPLocalization/bin/Release/net10.0-windows/VRChatSDKInspectorJPLocalization.dll",
       "cwd": "${workspaceFolder}"
     }
   ]
