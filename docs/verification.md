@@ -1,5 +1,13 @@
 # 検証記録
 
+## 利用者向け配布フォルダー（2026-10-02）
+
+- 利用者向け`README.md`と開発者向け`DEVELOPMENT.md`へ説明を分離
+- `publish.bat`からWindows PowerShellの`scripts/package.ps1`を実行し、配布フォルダーを自動作成
+- `artifacts/distribution/VRChatSDKInspectorJPLocalization-win-x64/`内がEXEと利用者向けREADMEの2ファイルのみであることを確認
+- コピー元と配布先のSHA256一致を確認し、再実行時の更新も成功
+- 配布フォルダー内のEXEで起動・状態表示・正常終了を確認
+
 ## Single File圧縮（2026-10-02）
 
 `publish.bat`で`EnableCompressionInSingleFile=true`を指定し、ランタイム同梱を維持した配布EXEを発行しました。トリミングは引き続き無効です。
