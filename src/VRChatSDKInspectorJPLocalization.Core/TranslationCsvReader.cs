@@ -1,16 +1,29 @@
 using System.Text;
+using System.Security.Cryptography;
 
 namespace VRChatSDKInspectorJPLocalization.Core;
 
 public static class TranslationCsvReader
 {
     /// <summary>埋め込み翻訳CSVの読み込み</summary>
-    public static IReadOnlyList<Translation> ReadEmbedded()
+    public static IReadOnlyList<Translation> ReadEmbedded() => ReadEmbeddedData().Entries;
+
+    /// <summary>埋め込みCSVと内容に基づく識別子の読み込み</summary>
+    public static TranslationData ReadEmbeddedData()
     {
         using var stream = typeof(TranslationCsvReader).Assembly.GetManifestResourceStream("Translations.csv")
             ?? throw new InvalidDataException("埋め込み翻訳CSVが見つかりません。");
+        using var buffer = new MemoryStream();
+        stream.CopyTo(buffer);
+        return ReadData(buffer.ToArray());
+    }
+
+    /// <summary>同一のCSVバイト列からの翻訳とSHA256識別子の生成</summary>
+    public static TranslationData ReadData(byte[] csvBytes)
+    {
+        using var stream = new MemoryStream(csvBytes, false);
         using var reader = new StreamReader(stream, Utf8Document.Encoding, true);
-        return Read(reader);
+        return new TranslationData(Read(reader), "sha256:" + Convert.ToHexString(SHA256.HashData(csvBytes)));
     }
 
     /// <summary>コメント・引用符・複数行に対応した翻訳CSVの解析</summary>

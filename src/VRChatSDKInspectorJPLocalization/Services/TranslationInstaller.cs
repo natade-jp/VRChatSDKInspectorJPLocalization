@@ -35,8 +35,8 @@ public static class TranslationInstaller
         return AtomicPoFile.Update(unity.PoPath, bytes =>
         {
             var document = Utf8Document.Read(bytes);
-            var translations = operation == TranslationOperation.Uninstall ? Array.Empty<Translation>() : TranslationCsvReader.ReadEmbedded();
-            var result = PoDocument.Transform(document.Text, operation, translations);
+            var data = operation == TranslationOperation.Uninstall ? null : TranslationCsvReader.ReadEmbeddedData();
+            var result = PoDocument.Transform(document.Text, operation, data?.Entries ?? Array.Empty<Translation>(), data?.Version ?? "");
             return document.GetBytes(result);
         });
     }

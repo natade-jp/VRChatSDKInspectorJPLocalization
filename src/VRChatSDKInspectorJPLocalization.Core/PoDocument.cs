@@ -49,8 +49,10 @@ public static class PoDocument
     }
 
     /// <summary>重複を除いた専用ブロックの生成と追記</summary>
-    public static string Install(string text, IReadOnlyList<Translation> translations)
+    public static string Install(string text, IReadOnlyList<Translation> translations, string translationVersion)
     {
+        if (string.IsNullOrWhiteSpace(translationVersion) || translationVersion.Any(char.IsControl))
+            throw new InvalidDataException("翻訳データの識別子が不正です。");
         var info = Inspect(text);
         if (info.State != InstallationState.NotInstalled)
             throw new InvalidDataException("未インストールの正常なファイルにのみインストールできます。" + info.Message);
@@ -68,8 +70,8 @@ public static class PoDocument
         }
         var padding = RequiredPadding(text);
         var result = text + new string('\n', padding) + AppConstants.BeginMarker + "\n" + FormatLine + "\n"
-            + VersionPrefix + AppConstants.TranslationVersion + "\n" + PaddingPrefix + padding + "\n"
-            + HashPrefix + Hash(AppConstants.TranslationVersion + "\n" + padding + "\n" + payload) + "\n\n" + payload + AppConstants.EndMarker + "\n";
+            + VersionPrefix + translationVersion + "\n" + PaddingPrefix + padding + "\n"
+            + HashPrefix + Hash(translationVersion + "\n" + padding + "\n" + payload) + "\n\n" + payload + AppConstants.EndMarker + "\n";
         if (Inspect(result).State != InstallationState.Installed)
             throw new InvalidDataException("生成した専用ブロックの検証に失敗しました。");
         PoSyntax.ReadMessageIds(result);
@@ -86,13 +88,13 @@ public static class PoDocument
     }
 
     /// <summary>指定操作によるPO文書の更新</summary>
-    public static string Transform(string text, TranslationOperation operation, IReadOnlyList<Translation> translations)
+    public static string Transform(string text, TranslationOperation operation, IReadOnlyList<Translation> translations, string translationVersion)
     {
         PoSyntax.ReadMessageIds(text);
         var result = operation switch
         {
-            TranslationOperation.Install => Install(text, translations),
-            TranslationOperation.Reinstall => Install(Uninstall(text), translations),
+            TranslationOperation.Install => Install(text, translations, translationVersion),
+            TranslationOperation.Reinstall => Install(Uninstall(text), translations, translationVersion),
             TranslationOperation.Uninstall => Uninstall(text),
             _ => throw new ArgumentOutOfRangeException(nameof(operation))
         };

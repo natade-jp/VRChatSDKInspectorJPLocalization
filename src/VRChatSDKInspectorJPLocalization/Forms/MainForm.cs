@@ -47,7 +47,7 @@ public sealed class MainForm : Form
         title.Text = AppConstants.AppName;
         title.Font = new Font(Font, FontStyle.Bold);
         AddWide(layout, title, 0);
-        AddRow(layout, "対象Unity", NewLabel("Windows 64bit / " + AppConstants.UnityVersion), 1);
+        AddRow(layout, "検証済みUnity", NewLabel("Windows 64bit / " + AppConstants.UnityVersion + "（別バージョンは手動指定可能）"), 1);
         AddRow(layout, "Unityインストール先", pathBox, 2);
         var pathActions = NewFlow();
         pathActions.Controls.AddRange(new Control[] { browseButton, refreshButton });
@@ -96,7 +96,7 @@ public sealed class MainForm : Form
         await RefreshStatusAsync(true);
         if (unityStatus.Tag is UnityInstallation { IsValid: false })
         {
-            MessageBox.Show(this, $"Unity {AppConstants.UnityVersion}が見つかりませんでした。\nUnityのインストールフォルダーを選択してください。",
+            MessageBox.Show(this, "指定先にUnityが見つからないか、フォルダー構造を確認できませんでした。\nバージョン名のUnityインストールフォルダーを選択してください。",
                 Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
             await BrowseAsync();
         }
@@ -105,7 +105,7 @@ public sealed class MainForm : Form
     /// <summary>Unityインストールフォルダーの選択と保存</summary>
     private async Task BrowseAsync()
     {
-        using var dialog = new FolderBrowserDialog { Description = $"Unity {AppConstants.UnityVersion}のインストールフォルダーを選択", UseDescriptionForTitle = true, ShowNewFolderButton = false };
+        using var dialog = new FolderBrowserDialog { Description = "Unityのバージョン名のフォルダーを選択（例: 2022.3.22f1 / 6000.0.1f1）", UseDescriptionForTitle = true, ShowNewFolderButton = false };
         if (dialog.ShowDialog(this) != DialogResult.OK) return;
         pathBox.Text = dialog.SelectedPath;
         await RefreshStatusAsync(true);

@@ -17,6 +17,37 @@ internal static class Program
     private static int Main(string[] args)
     {
         Test("Embedded CSV", () => Equal(3, TranslationCsvReader.ReadEmbedded().Count));
+        Test("CSV version follows raw content", () =>
+        {
+            var bytes = Encoding.UTF8.GetBytes("English,Japanese\nPull,引っ張り\n");
+            var first = TranslationCsvReader.ReadData(bytes);
+            Equal(first.Version, TranslationCsvReader.ReadData(bytes).Version);
+            var commented = TranslationCsvReader.ReadData(Encoding.UTF8.GetBytes("# コンポーネント\nEnglish,Japanese\nPull,引っ張り\n"));
+            Equal(first.Entries[0], commented.Entries[0]);
+            True(first.Version != commented.Version);
+            True(first.Version.StartsWith("sha256:", StringComparison.Ordinal));
+            Equal(71, first.Version.Length);
+        });
+        Test("CSV hash recorded and refreshed in PO", () =>
+        {
+            var first = TranslationCsvReader.ReadData(Encoding.UTF8.GetBytes("English,Japanese\nPull,引っ張り\n"));
+            var second = TranslationCsvReader.ReadData(Encoding.UTF8.GetBytes("English,Japanese\nPull,引く\n"));
+            True(first.Version != second.Version);
+            var installed = PoDocument.Install(Original, first.Entries, first.Version);
+            Equal(first.Version, PoDocument.Inspect(installed).Version);
+            var replaced = PoDocument.Transform(installed, TranslationOperation.Reinstall, second.Entries, second.Version);
+            Equal(second.Version, PoDocument.Inspect(replaced).Version);
+            Equal(Original, PoDocument.Uninstall(replaced));
+        });
+        Test("Legacy sample version can be removed or upgraded", () =>
+        {
+            var legacy = PoDocument.Install(Original, Sample, "sample-1");
+            Equal("sample-1", PoDocument.Inspect(legacy).Version);
+            Equal(Original, PoDocument.Uninstall(legacy));
+            var data = TranslationCsvReader.ReadEmbeddedData();
+            var updated = PoDocument.Transform(legacy, TranslationOperation.Reinstall, data.Entries, data.Version);
+            Equal(data.Version, PoDocument.Inspect(updated).Version);
+        });
         Test("CSV quotes, comma and multiline", () =>
         {
             using var reader = new StringReader("English,Japanese\n\"a,\"\"b\"\"\",\"日本語\n二行目\"\n");
@@ -44,7 +75,7 @@ internal static class Program
         Test("CSV duplicates produce a single PO entry", () =>
         {
             var data = ReadCsv("English,Japanese\nPull,引っ張り\nPull,引く\nPull,引っ張り\n");
-            var installed = PoDocument.Install(Original, data);
+            var installed = Install(Original, data);
             Equal(3, PoSyntax.ReadMessageIds(installed).Count);
             True(installed.Contains("msgstr \"引っ張り\"", StringComparison.Ordinal));
             True(!installed.Contains("msgstr \"引く\"", StringComparison.Ordinal));
@@ -89,7 +120,7 @@ internal static class Program
         Test("Unity nonstandard msgstr preserved", () =>
         {
             const string original = "msgid \"Existing\"\nmsgstr \"既存\\ n文字列\"\n";
-            Equal(original, PoDocument.Uninstall(PoDocument.Install(original, Sample)));
+            Equal(original, PoDocument.Uninstall(Install(original, Sample)));
         });
         Test("Unknown msgid escape still rejected", () => Throws<InvalidDataException>(() => PoSyntax.ReadMessageIds("msgid \"Unknown\\ q\"\nmsgstr \"翻訳\"\n")));
         Test("PO malformed escape rejected", () => Throws<InvalidDataException>(() => PoSyntax.Unquote("\"\\q\"")));
@@ -112,58 +143,58 @@ internal static class Program
         Test("Not installed", () => Equal(InstallationState.NotInstalled, PoDocument.Inspect(Original).State));
         Test("Install and version", () =>
         {
-            var result = PoDocument.Install(Original, Sample);
+            var result = Install(Original, Sample);
             var info = PoDocument.Inspect(result);
             Equal(InstallationState.Installed, info.State);
-            Equal(AppConstants.TranslationVersion, info.Version);
+            Equal("test-data", info.Version);
             True(result.StartsWith(Original, StringComparison.Ordinal));
         });
-        Test("Double install rejected", () => Throws<InvalidDataException>(() => PoDocument.Install(PoDocument.Install(Original, Sample), Sample)));
+        Test("Double install rejected", () => Throws<InvalidDataException>(() => Install(Install(Original, Sample), Sample)));
         Test("BEGIN only", () => Abnormal(Original + AppConstants.BeginMarker + "\n"));
         Test("END only", () => Abnormal(Original + AppConstants.EndMarker + "\n"));
         Test("Reversed markers", () => Abnormal(Original + AppConstants.EndMarker + "\n" + AppConstants.BeginMarker + "\n"));
-        Test("Multiple blocks", () => Abnormal(PoDocument.Install(Original, Sample) + PoDocument.Install(Original, Sample)));
-        Test("Altered block rejected", () => Abnormal(PoDocument.Install(Original, Sample).Replace("引っ張り", "変更")));
-        Test("Truncated block rejected", () => Abnormal(PoDocument.Install(Original, Sample).TrimEnd('\n')));
+        Test("Multiple blocks", () => Abnormal(Install(Original, Sample) + Install(Original, Sample)));
+        Test("Altered block rejected", () => Abnormal(Install(Original, Sample).Replace("引っ張り", "変更")));
+        Test("Truncated block rejected", () => Abnormal(Install(Original, Sample).TrimEnd('\n')));
         Test("Unrecognized block format rejected", () => Abnormal(Original + AppConstants.BeginMarker + "\nmsgid \"x\"\nmsgstr \"y\"\n" + AppConstants.EndMarker + "\n"));
-        Test("Changed padding rejected", () => Abnormal(PoDocument.Install(Original, Sample).Replace("# Added-LF: 1", "# Added-LF: 2")));
+        Test("Changed padding rejected", () => Abnormal(Install(Original, Sample).Replace("# Added-LF: 1", "# Added-LF: 2")));
         Test("Existing ID takes precedence", () =>
         {
             var original = Original + "\nmsgid \"Pull\"\nmsgstr \"標準優先\"\n";
-            var result = PoDocument.Install(original, Sample);
+            var result = Install(original, Sample);
             True(result.Contains("標準優先") && !result.Contains("引っ張り"));
             Equal(5, PoSyntax.ReadMessageIds(result).Count);
         });
         Test("Existing multiline ID excluded", () =>
         {
-            var result = PoDocument.Install(Original + "\nmsgid \"Gravity \"\n\"Falloff\"\nmsgstr \"標準\"\n", Sample);
+            var result = Install(Original + "\nmsgid \"Gravity \"\n\"Falloff\"\nmsgstr \"標準\"\n", Sample);
             True(!result.Contains("重力減衰"));
         });
-        Test("Context ID conservatively excluded", () => True(!PoDocument.Install(Original + "\nmsgctxt \"menu\"\nmsgid \"Pull\"\nmsgstr \"標準\"\n", Sample).Contains("引っ張り")));
+        Test("Context ID conservatively excluded", () => True(!Install(Original + "\nmsgctxt \"menu\"\nmsgid \"Pull\"\nmsgstr \"標準\"\n", Sample).Contains("引っ張り")));
         Test("All translations already present", () =>
         {
-            var result = PoDocument.Install("msgid \"Pull\"\nmsgstr \"既存\"\n", new[] { Sample[0] });
+            var result = Install("msgid \"Pull\"\nmsgstr \"既存\"\n", new[] { Sample[0] });
             Equal(InstallationState.Installed, PoDocument.Inspect(result).State);
         });
         foreach (var suffix in new[] { "", "\n", "\n\n", "\n\n\n" })
         {
             var original = Original.TrimEnd('\n') + suffix;
-            Test($"Exact round trip trailing LF={suffix.Length}", () => Equal(original, PoDocument.Uninstall(PoDocument.Install(original, Sample))));
+            Test($"Exact round trip trailing LF={suffix.Length}", () => Equal(original, PoDocument.Uninstall(Install(original, Sample))));
         }
         Test("Content after block retained", () =>
         {
             const string extra = "\n# 他ツールの追加\nmsgid \"Other\"\nmsgstr \"別\"\n";
-            Equal(Original + extra, PoDocument.Uninstall(PoDocument.Install(Original, Sample) + extra));
+            Equal(Original + extra, PoDocument.Uninstall(Install(Original, Sample) + extra));
         });
         Test("Reinstall replaces content", () =>
         {
-            var result = PoDocument.Transform(PoDocument.Install(Original, Sample), TranslationOperation.Reinstall, new[] { new Translation("Pull", "最新版") });
+            var result = TransformDocument(Install(Original, Sample), TranslationOperation.Reinstall, new[] { new Translation("Pull", "最新版") });
             True(result.Contains("最新版") && !result.Contains("引っ張り") && !result.Contains("msgid \"Spring\""));
             Equal(Original, PoDocument.Uninstall(result));
         });
-        Test("Reinstall when absent rejected", () => Throws<InvalidDataException>(() => PoDocument.Transform(Original, TranslationOperation.Reinstall, Sample)));
+        Test("Reinstall when absent rejected", () => Throws<InvalidDataException>(() => TransformDocument(Original, TranslationOperation.Reinstall, Sample)));
         Test("Uninstall when absent rejected", () => Throws<InvalidDataException>(() => PoDocument.Uninstall(Original)));
-        Test("LF only", () => True(!PoDocument.Install(Original, Sample).Contains('\r')));
+        Test("LF only", () => True(!Install(Original, Sample).Contains('\r')));
         Test("Invalid UTF8 rejected", () => Throws<DecoderFallbackException>(() => Utf8Document.Read(new byte[] { 0xFF, 0xFF })));
         Test("CRLF rejected without conversion", () => Throws<InvalidDataException>(() => Utf8Document.Read(Encoding.UTF8.GetBytes(Original.Replace("\n", "\r\n")))));
         Test("Empty document rejected", () => Throws<InvalidDataException>(() => Utf8Document.Read(Array.Empty<byte>())));
@@ -172,7 +203,7 @@ internal static class Program
             var bytes = new byte[] { 0xEF, 0xBB, 0xBF }.Concat(Encoding.UTF8.GetBytes(Original)).ToArray();
             var document = Utf8Document.Read(bytes);
             True(document.HasBom);
-            BytesEqual(bytes, document.GetBytes(PoDocument.Uninstall(PoDocument.Install(document.Text, Sample))));
+            BytesEqual(bytes, document.GetBytes(PoDocument.Uninstall(Install(document.Text, Sample))));
         });
         Test("UTF8 no BOM preserved", () =>
         {
@@ -243,12 +274,40 @@ internal static class Program
             Throws<InvalidOperationException>(() => TranslationInstaller.Execute(directory, TranslationOperation.Install));
             Equal(Original, File.ReadAllText(Path.Combine(directory, AppConstants.LocalizationRelativePath)));
         }));
-        Test("Different executable version rejected", () => InTemporaryDirectory(directory =>
+        Test("Version folder required even with executable", () => InTemporaryDirectory(directory =>
         {
             Directory.CreateDirectory(Path.Combine(directory, "Editor", "Data", "Localization"));
             File.Copy(Environment.ProcessPath!, Path.Combine(directory, "Editor", "Unity.exe"));
             File.WriteAllText(Path.Combine(directory, AppConstants.LocalizationRelativePath), Original);
             True(!UnityDetector.Inspect(directory).IsValid);
+        }));
+        foreach (var version in new[] { "2022.3.22f1", "2022.3.99f1", "6000.0.1f1", "7000.1.0b2" })
+            Test("Unity version from folder: " + version, () => InTemporaryDirectory(directory =>
+            {
+                var path = CreateUnityFixture(directory, version);
+                var unity = UnityDetector.Inspect(path + Path.DirectorySeparatorChar);
+                True(unity.IsValid && unity.HasLanguagePack);
+                Equal(version, unity.Version);
+                Equal(Path.Combine(path, AppConstants.LocalizationRelativePath), unity.PoPath);
+            }));
+        Test("Version-named folder without executable rejected", () => InTemporaryDirectory(directory =>
+        {
+            var path = CreateUnityFixture(directory, "6000.0.1f1");
+            File.Delete(Path.Combine(path, "Editor", "Unity.exe"));
+            True(!UnityDetector.Inspect(path).IsValid);
+        }));
+        Test("Missing language pack detected for new Unity", () => InTemporaryDirectory(directory =>
+        {
+            var path = CreateUnityFixture(directory, "6000.0.1f1");
+            File.Delete(Path.Combine(path, AppConstants.LocalizationRelativePath));
+            var unity = UnityDetector.Inspect(path);
+            True(unity.IsValid && !unity.HasLanguagePack);
+            Equal("6000.0.1f1", unity.Version);
+        }));
+        Test("Nested Editor folder is not Unity root", () => InTemporaryDirectory(directory =>
+        {
+            var path = CreateUnityFixture(directory, "6000.0.1f1");
+            True(!UnityDetector.Inspect(Path.Combine(path, "Editor")).IsValid);
         }));
         if (args.Length == 2 && args[0] == "--inspect-unity")
             Test("Real Unity read-only detection and in-memory round trip", () =>
@@ -257,13 +316,32 @@ internal static class Program
                 True(unity.IsValid && unity.HasLanguagePack);
                 var originalBytes = File.ReadAllBytes(unity.PoPath);
                 var document = Utf8Document.Read(originalBytes);
-                var installed = PoDocument.Install(document.Text, Sample);
+                var installed = Install(document.Text, Sample);
                 Equal(InstallationState.Installed, PoDocument.Inspect(installed).State);
                 BytesEqual(originalBytes, document.GetBytes(PoDocument.Uninstall(installed)));
                 Console.WriteLine($"  Read-only: {PoSyntax.ReadMessageIds(document.Text).Count} existing msgids, {originalBytes.Length} bytes");
             });
         Console.WriteLine($"{count - failures}/{count} tests passed.");
         return failures == 0 ? 0 : 1;
+    }
+
+    /// <summary>テスト用識別子によるPOインストール</summary>
+    private static string Install(string text, IReadOnlyList<Translation> translations) =>
+        PoDocument.Install(text, translations, "test-data");
+
+    /// <summary>テスト用識別子によるPO更新</summary>
+    private static string TransformDocument(string text, TranslationOperation operation, IReadOnlyList<Translation> translations) =>
+        PoDocument.Transform(text, operation, translations, "test-data");
+
+    /// <summary>パス検出専用のUnityフォルダー構造の作成</summary>
+    private static string CreateUnityFixture(string directory, string version)
+    {
+        var path = Path.Combine(directory, version);
+        Directory.CreateDirectory(Path.Combine(path, "Editor", "Data", "Localization"));
+        // 実行は行わず、バイナリの製品バージョンを参照しないことを確認
+        File.WriteAllText(Path.Combine(path, "Editor", "Unity.exe"), "detection fixture");
+        File.WriteAllText(Path.Combine(path, AppConstants.LocalizationRelativePath), Original);
+        return path;
     }
 
     /// <summary>一時ファイルでの更新とバックアップの統合検証</summary>
@@ -288,7 +366,7 @@ internal static class Program
     private static byte[] Transform(byte[] bytes, TranslationOperation operation)
     {
         var document = Utf8Document.Read(bytes);
-        return document.GetBytes(PoDocument.Transform(document.Text, operation, Sample));
+        return document.GetBytes(TransformDocument(document.Text, operation, Sample));
     }
 
     /// <summary>テスト用POファイルの作成</summary>
