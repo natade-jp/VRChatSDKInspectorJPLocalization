@@ -1,6 +1,389 @@
 English,Japanese
 
-# VRC Phys Bone（動作確認用サンプル）
-Pull,引っ張り
+# ---------------------
+# VRC Phys Bone
+# https://creators.vrchat.com/common-components/physbones/
+# ---------------------
+
+# Version
+Version 1.0,バージョン 1.0
+Version 1.1,バージョン 1.1
+
+# Transforms
+Transforms,トランスフォーム
+Root Transform,ルートトランスフォーム
+Ignore Transforms,無視するトランスフォーム
+Ignore Other Phys Bones,他のPhysBoneを無視
+Endpoint Position,末端位置
+Multi Child Type,複数子ボーンの処理
+Ignore,無視
+First,最初
+Average,平均
+
+# Forces
+Forces,力
+Integration Type,積分方式
+Simplified,簡易
+Advanced,詳細
+Pull,復元力
 Spring,ばね
+Momentum,慣性
+Stiffness,剛性
 Gravity Falloff,重力減衰
+Immobile Type,固定方式
+All Motion,すべての動き
+World (Experimental),ワールド（実験的）
+# TODO: Immobileは訳語を再確認
+Immobile,固定
+
+# Limits
+Limits,制限
+Limit Type,制限方式
+None,なし
+Angle,角度
+Hinge,ヒンジ
+Polar,極座標
+Max Angle,最大角度
+Max Pitch,最大ピッチ
+Max Yaw,最大ヨー
+Rotation,回転
+Pitch,ピッチ
+Roll,ロール
+Yaw,ヨー
+
+# Collision
+Collision,衝突
+Allow Collision,衝突を許可
+Colliders,コライダー
+
+# Allow Collision - Other
+Content Types,コンテンツタイプ
+Nothing,なし
+Everything,すべて
+Avatar,アバター
+World,ワールド
+# TODO: Collision・Grab・Poseで共通するため訳語を再確認
+Allow Self,自身を許可
+Allow Others,他者を許可
+
+# Stretch & Squish
+Stretch & Squish,伸縮
+Max Stretch,最大伸長
+Max Squish,最大圧縮
+
+# Grab & Pose
+Grab & Pose,つかみ・ポーズ
+Allow Grabbing,つかむことを許可
+Allow Posing,ポーズを許可
+Grab Movement,つかんだときの移動
+Snap To Hand,手にスナップ
+
+# Options
+Options,オプション
+Parameter,パラメーター
+Is Animated,アニメーションを許可
+Reset When Disabled,無効化時にリセット
+
+# Gizmos
+Gizmos,ギズモ
+Show Gizmos,ギズモを表示
+Bone Opacity,ボーンの不透明度
+Limit Opacity,制限の不透明度
+
+# ---------------------
+# VRC Phys Bone Collider
+# https://creators.vrchat.com/common-components/physbones/
+# ---------------------
+
+Root Transform,ルートトランスフォーム
+Global Collision,グローバル衝突
+
+# Global Collision - Other
+Content Types,コンテンツタイプ
+Nothing,なし
+Everything,すべて
+Avatar,アバター
+World,ワールド
+Allow Self,自身を許可
+Allow Others,他者を許可
+
+# Shape
+Shape,形状
+Shape Type,形状タイプ
+Sphere,球
+Capsule,カプセル
+Plane,平面
+Radius,半径
+Height,高さ
+Position,位置
+Rotation,回転
+Inside Bounds,境界内に制限
+Bones As Spheres,ボーンを球として扱う
+
+# Warning
+Global collision is not supported on Plane colliders.,Planeコライダーではグローバル衝突を使用できません。
+
+# ---------------------
+# VRC Contact Sender
+# https://creators.vrchat.com/common-components/contacts/
+# ---------------------
+
+Root Transform,ルートトランスフォーム
+
+# Shape
+Shape,形状
+Shape Type,形状タイプ
+Sphere,球
+Capsule,カプセル
+Box,ボックス
+Radius,半径
+Height,高さ
+Size,サイズ
+Position,位置
+Rotation,回転
+
+# Filtering
+Filtering,フィルタリング
+Content Types,コンテンツタイプ
+Local Only,ローカルのみ
+
+# Content Types
+Nothing,なし
+Everything,すべて
+Avatar,アバター
+World,ワールド
+
+# Collision Tags
+Collision Tags,衝突タグ
+Add,追加
+Up,上へ
+Down,下へ
+Delete,削除
+
+# Collision Tagsの定義済みタグ名およびタグ選択UIは翻訳対象外
+
+# Warning
+"You must have at least one collision tag, otherwise this contact won't do anything.",少なくとも1つの衝突タグを設定してください。設定しない場合、このContactは動作しません。
+
+# ---------------------
+# VRC Contact Receiver
+# https://creators.vrchat.com/common-components/contacts/
+# ---------------------
+
+Root Transform,ルートトランスフォーム
+
+# Shape
+Shape,形状
+Shape Type,形状タイプ
+Sphere,球
+Capsule,カプセル
+Box,ボックス
+Radius,半径
+Height,高さ
+Size,サイズ
+Position,位置
+Rotation,回転
+
+# Filtering
+Filtering,フィルタリング
+Content Types,コンテンツタイプ
+Allow Self,自身を許可
+Allow Others,他者を許可
+Local Only,ローカルのみ
+
+# Content Types
+Nothing,なし
+Everything,すべて
+Avatar,アバター
+World,ワールド
+
+# Collision Tags
+Collision Tags,衝突タグ
+Add,追加
+Up,上へ
+Down,下へ
+Delete,削除
+
+# Collision Tagsの定義済みタグ名およびタグ選択UIは翻訳対象外
+
+# Receiver
+Receiver,レシーバー
+Receiver Type,レシーバータイプ
+Constant,常時
+On Enter,接触時
+Proximity,近接度
+Parameter,パラメーター
+Min Velocity,最小速度
+
+# Warning
+"You must have at least one collision tag, otherwise this contact won't do anything.",少なくとも1つの衝突タグを設定してください。設定しない場合、このContactは動作しません。
+
+# Help - Constant
+"The parameter will be set to 1 while a contact sender is inside the receiver. Otherwise the value defaults to 0.","Contact SenderがReceiver内にある間、パラメーターは1になります。それ以外の場合は0になります。"
+
+# Help - On Enter
+"Upon first contact if the two contacts' combined velocities are greater then the minVelocity then the parameter will be set to 1 for a single frame. Otherwise the value defaults to 0.","最初に接触したとき、2つのContactの合成速度が最小速度を上回っている場合、パラメーターは1フレームだけ1になります。それ以外の場合は0になります。"
+
+# Help - Proximity
+"Set a value between 0-1 representing how close a contact is to the receiver's center. (0.0 furthest, 1.0 closest) If multiple senders are detected it will give you the closest value.","Receiverの中心へのContactの近さを0～1の値で設定します。（0.0が最も遠く、1.0が最も近い）複数のSenderを検出した場合は、最も近い値になります。"
+
+# Help - Parameter
+"It's not necessary to use a synced parameter as defined by the VRCExpressionParameters object. This parameter is already updated on both the local and remote machine. If you choose to use a synced parameter we recommend using the Local Only option.","VRCExpressionParametersで定義された同期パラメーターを使用する必要はありません。このパラメーターはローカル側とリモート側の両方ですでに更新されます。同期パラメーターを使用する場合は、Local Onlyオプションの使用を推奨します。"
+
+# ---------------------
+# VRC Avatar Descriptor
+# https://creators.vrchat.com/avatars/avatars-3-0/using-av3-features/
+# ---------------------
+
+# View
+View,ビュー
+View Position,視点位置
+Edit,編集
+
+# LipSync
+LipSync,リップシンク
+Mode,モード
+Default,デフォルト
+Jaw Flap Bone,顎ボーン
+Jaw Flap Blend Shape,顎ブレンドシェイプ
+Viseme Blend Shape,ビセームブレンドシェイプ
+Viseme Parameter Only,ビセームパラメーターのみ
+
+# LipSync - Jaw Flap Bone
+Jaw Bone,顎ボーン
+Rotation States,回転状態
+Closed,閉じる
+Open,開く
+Preview,プレビュー
+
+# LipSync - Jaw Flap Blend Shape
+Face Mesh,顔メッシュ
+Jaw Flap Blend Shape,顎ブレンドシェイプ
+
+# LipSync - Viseme Blend Shape
+# Viseme名（sil、PP、FF、TH、DD、kk、CH、SS、nn、RR、aa、E、ih、oh、ou）は翻訳対象外
+
+# LipSync - Viseme Parameter Only
+# 追加設定項目なし
+
+# Eye Look
+Eye Look,視線
+Enable,有効化
+Disable,無効化
+
+# Eye Look - General
+General,一般
+Eye Movements,目の動き
+Calm,穏やか
+Excited,興奮
+Shy,控えめ
+Confident,自信あり
+
+# Eye Look - Eyes
+Eyes,目
+Transforms,トランスフォーム
+Left Eye Bone,左目ボーン
+Right Eye Bone,右目ボーン
+Rotation States,回転状態
+Looking Straight,正面
+Looking Up,上を見る
+Looking Down,下を見る
+Looking Left,左を見る
+Looking Right,右を見る
+Preview,プレビュー
+
+# Eye Look - Eyelids
+Eyelids,まぶた
+Eyelid Type,まぶたタイプ
+None,なし
+Bones,ボーン
+Blendshapes,ブレンドシェイプ
+
+# Eye Look - Eyelids - Blendshapes
+Eyelids Mesh,まぶたメッシュ
+Blendshape States,ブレンドシェイプ状態
+Blink,まばたき
+Looking Up,上を見る
+Looking Down,下を見る
+Preview,プレビュー
+
+# Eye Look - Eyelids - Bones
+Transforms,トランスフォーム
+Upper Left Eyelid,左上まぶた
+Upper Right Eyelid,右上まぶた
+Lower Left Eyelid,左下まぶた
+Lower Right Eyelid,右下まぶた
+Rotation States,回転状態
+Default,デフォルト
+Upper,上
+Lower,下
+Closed,閉じる
+Looking Up,上を見る
+Looking Down,下を見る
+Linked,連動
+Left,左
+Right,右
+Preview,プレビュー
+
+# Playable Layers
+Playable Layers,再生レイヤー
+Reset to Default,デフォルトに戻す
+
+# Playable Layers - Base
+Base,ベース
+Default Locomotion,デフォルトの移動
+Additive,加算
+Gesture,ジェスチャー
+Default Gesture,デフォルトのジェスチャー
+Action,アクション
+Default Action,デフォルトのアクション
+FX,FX
+
+# Playable Layers - Special
+Special,特殊
+Sitting,座り
+Default Sitting,デフォルトの座り
+TPose,Tポーズ
+Default TPose,デフォルトのTポーズ
+IKPose,IKポーズ
+Default IKPose,デフォルトのIKポーズ
+
+# Playable Layers
+# Animator Controllerを変更しても追加設定項目なし
+
+# Lower Body
+Lower Body,下半身
+Use Auto-Footsteps for 3 and 4 point tracking,3点・4点トラッキングで自動足音を使用
+Force Locomotion animations for 6 point tracking,6点トラッキングで移動アニメーションを強制
+
+# Expressions
+Expressions,表情
+Reset To Default,デフォルトに戻す
+Menu,メニュー
+Parameters,パラメーター
+
+# Expressions
+# Menu・Parametersを変更しても追加設定項目なし
+
+# Colliders
+Colliders,コライダー
+Head,頭
+Torso,胴体
+Hand,手
+Foot,足
+Finger Index,人差し指
+Finger Middle,中指
+Finger Ring,薬指
+Finger Little,小指
+
+# Colliders - Mode
+Automatic,自動
+Custom,カスタム
+Disabled,無効
+Edit,編集
+
+# Colliders - Custom
+Radius,半径
+Height,高さ
+Position,位置
+Rotation,回転
