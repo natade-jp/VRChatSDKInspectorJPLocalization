@@ -265,7 +265,3 @@ artifacts/distribution/VRChatSDKInspectorJPLocalization-win-x64/
 配布EXEには.NET 10 Runtimeを同梱するので、利用者によるランタイムのインストールは不要です。容量を抑えるため`EnableCompressionInSingleFile=true`で圧縮し、WinFormsの互換性を優先してトリミングは無効にしています。起動時には埋め込みアセンブリをメモリ上で解凍し、ネイティブライブラリは.NETの一時領域へ展開します。圧縮により起動時間が増える場合があるため、発行設定を変更した際は容量と起動動作の両方を確認します。
 
 `build.bat`と`publish.bat`に管理者権限は不要で、Unityや`ja.po`を変更する処理はありません。ビルド出力・キャッシュ・発行成果物はGit管理から除外します。
-
-## 8. ライセンス
-
-ライセンスは未選択です。`LICENSE`はその状態を示すファイルであり、特定のOSSライセンス本文ではありません。権利者がライセンスを選択した後に更新してください。
