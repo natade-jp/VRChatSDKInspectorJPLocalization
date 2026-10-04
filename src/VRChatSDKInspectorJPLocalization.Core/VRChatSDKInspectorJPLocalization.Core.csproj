@@ -3,6 +3,6 @@
     <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Resources/translations.csv" LogicalName="Translations.csv" />
+    <EmbeddedResource Include="Resources/Translations/**/*.csv" LogicalName="Translations/%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
 </Project>

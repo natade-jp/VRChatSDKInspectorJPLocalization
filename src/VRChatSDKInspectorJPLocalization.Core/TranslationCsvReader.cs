@@ -11,11 +11,49 @@ public static class TranslationCsvReader
     /// <summary>埋め込みCSVと内容に基づく識別子の読み込み</summary>
     public static TranslationData ReadEmbeddedData()
     {
-        using var stream = typeof(TranslationCsvReader).Assembly.GetManifestResourceStream("Translations.csv")
-            ?? throw new InvalidDataException("埋め込み翻訳CSVが見つかりません。");
+        var assembly = typeof(TranslationCsvReader).Assembly;
+        var files = assembly.GetManifestResourceNames()
+            .Where(name => name.StartsWith("Translations/", StringComparison.Ordinal) && name.EndsWith(".csv", StringComparison.Ordinal))
+            .Select(name =>
+            {
+                using var stream = assembly.GetManifestResourceStream(name)
+                    ?? throw new InvalidDataException($"埋め込み翻訳CSVが見つかりません: {name}");
+                using var buffer = new MemoryStream();
+                stream.CopyTo(buffer);
+                return new KeyValuePair<string, byte[]>(name["Translations/".Length..].Replace('\\', '/'), buffer.ToArray());
+            });
+        return ReadFiles(files);
+    }
+
+    /// <summary>相対パス順にCSVを統合し、ファイル名と元の内容から識別子を生成</summary>
+    public static TranslationData ReadFiles(IEnumerable<KeyValuePair<string, byte[]>> files)
+    {
+        var entries = new List<Translation>();
+        var ids = new HashSet<string>(StringComparer.Ordinal);
+        var names = new HashSet<string>(StringComparer.Ordinal);
         using var buffer = new MemoryStream();
-        stream.CopyTo(buffer);
-        return ReadData(buffer.ToArray());
+        using var writer = new BinaryWriter(buffer, Encoding.UTF8, true);
+        writer.Write("Translations-v1");
+        foreach (var file in files.OrderBy(file => file.Key, StringComparer.Ordinal))
+        {
+            if (!names.Add(file.Key)) throw new InvalidDataException($"CSVのファイル名が重複しています: {file.Key}");
+            try
+            {
+                foreach (var translation in ReadData(file.Value).Entries)
+                    if (ids.Add(translation.English)) entries.Add(translation);
+            }
+            catch (Exception ex) when (ex is InvalidDataException or DecoderFallbackException)
+            {
+                throw new InvalidDataException($"翻訳CSV「{file.Key}」: {ex.Message}", ex);
+            }
+            // 長さを含めて記録し、ファイルの境界が曖昧になることを防ぐ
+            writer.Write(file.Key);
+            writer.Write(file.Value.Length);
+            writer.Write(file.Value);
+        }
+        if (names.Count == 0) throw new InvalidDataException("埋め込み翻訳CSVが見つかりません。");
+        writer.Flush();
+        return new TranslationData(entries, "sha256:" + Convert.ToHexString(SHA256.HashData(buffer.ToArray())));
     }
 
     /// <summary>同一のCSVバイト列からの翻訳とSHA256識別子の生成</summary>

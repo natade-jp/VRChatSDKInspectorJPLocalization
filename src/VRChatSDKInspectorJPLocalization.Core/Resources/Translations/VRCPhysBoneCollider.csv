@@ -1,0 +1,34 @@
+English,Japanese
+
+# ---------------------
+# VRC Phys Bone Collider
+# https://creators.vrchat.com/common-components/physbones/
+# ---------------------
+
+Root Transform,ルートトランスフォーム
+Global Collision,グローバル衝突
+
+# Global Collision - Other
+Content Types,コンテンツタイプ
+Nothing,なし
+Everything,すべて
+Avatar,アバター
+World,ワールド
+Allow Self,自身を許可
+Allow Others,他者を許可
+
+# Shape
+Shape,形状
+Shape Type,形状タイプ
+Sphere,球
+Capsule,カプセル
+Plane,平面
+Radius,半径
+Height,高さ
+Position,位置
+Rotation,回転
+Inside Bounds,境界内に制限
+Bones As Spheres,ボーンを球として扱う
+
+# Warning
+Global collision is not supported on Plane colliders.,Planeコライダーではグローバル衝突を使用できません。

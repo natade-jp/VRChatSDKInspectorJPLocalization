@@ -16,7 +16,51 @@ internal static class Program
     /// <summary>外部パッケージを使わない回帰テストの実行</summary>
     private static int Main(string[] args)
     {
-        Test("Embedded CSV", () => Equal(3, TranslationCsvReader.ReadEmbedded().Count));
+        Test("Embedded component CSVs", () =>
+        {
+            var entries = TranslationCsvReader.ReadEmbedded().ToDictionary(item => item.English, item => item.Japanese);
+            Equal("復元力", entries["Pull"]);
+            Equal("表情", entries["Expressions"]);
+            True(entries.Count > 3);
+        });
+        Test("Multiple CSVs sorted and duplicates merged", () =>
+        {
+            var files = new[]
+            {
+                CsvFile("B.csv", "English,Japanese\nx,後の訳\ny,同じ訳\n"),
+                CsvFile("A.csv", "English,Japanese\nx,先の訳\nz,同じ訳\n")
+            };
+            var data = TranslationCsvReader.ReadFiles(files);
+            Equal(3, data.Entries.Count);
+            Equal(new Translation("x", "先の訳"), data.Entries[0]);
+            Equal(data.Version, TranslationCsvReader.ReadFiles(files.Reverse()).Version);
+            True(data.Version != TranslationCsvReader.ReadFiles(files.Take(1)).Version);
+            True(data.Version != TranslationCsvReader.ReadFiles(new[] { files[0], CsvFile("C.csv", Encoding.UTF8.GetString(files[1].Value)) }).Version);
+            True(data.Version != TranslationCsvReader.ReadFiles(new[] { files[0], CsvFile("A.csv", "# comment\n" + Encoding.UTF8.GetString(files[1].Value)) }).Version);
+        });
+        Test("Multiple CSVs validate each file and report its name", () =>
+        {
+            foreach (var invalid in new[] { "English,Japanese\nx,\n", "English,Japanese\n", "wrong,header\nx,訳\n", "English,Japanese\n\"x,訳" })
+            {
+                try
+                {
+                    TranslationCsvReader.ReadFiles(new[] { CsvFile("A.csv", "English,Japanese\nx,訳\n"), CsvFile("Broken.csv", invalid) });
+                    throw new Exception("Invalid CSV accepted");
+                }
+                catch (InvalidDataException ex) { True(ex.Message.Contains("Broken.csv", StringComparison.Ordinal)); }
+            }
+            Throws<InvalidDataException>(() => TranslationCsvReader.ReadFiles(Array.Empty<KeyValuePair<string, byte[]>>()));
+        });
+        Test("Multiple CSVs preserve BOM quotes and multiline fields", () =>
+        {
+            var data = TranslationCsvReader.ReadFiles(new[]
+            {
+                CsvFile("A.csv", "\uFEFFEnglish,Japanese\r\n# comment\r\n\"#a,\"\"b\"\"\",\"一\r\n#二\"\r\n"),
+                CsvFile("Nested/B.csv", "English,Japanese\nx,訳\n")
+            });
+            Equal(new Translation("#a,\"b\"", "一\n#二"), data.Entries[0]);
+            Equal(2, data.Entries.Count);
+        });
         Test("CSV version follows raw content", () =>
         {
             var bytes = Encoding.UTF8.GetBytes("English,Japanese\nPull,引っ張り\n");
@@ -384,6 +428,8 @@ internal static class Program
         try { action(directory.FullName); }
         finally { directory.Delete(true); }
     }
+
+    private static KeyValuePair<string, byte[]> CsvFile(string name, string text) => new(name, Encoding.UTF8.GetBytes(text));
 
     /// <summary>文字列からのテスト用CSV読み込み</summary>
     private static IReadOnlyList<Translation> ReadCsv(string text)

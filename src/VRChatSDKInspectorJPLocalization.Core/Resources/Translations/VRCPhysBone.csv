@@ -1,0 +1,91 @@
+English,Japanese
+
+# ---------------------
+# VRC Phys Bone
+# https://creators.vrchat.com/common-components/physbones/
+# ---------------------
+
+# Version
+Version 1.0,バージョン 1.0
+Version 1.1,バージョン 1.1
+
+# Transforms
+Transforms,トランスフォーム
+Root Transform,ルートトランスフォーム
+Ignore Transforms,無視するトランスフォーム
+Ignore Other Phys Bones,他のPhysBoneを無視
+Endpoint Position,末端位置
+Multi Child Type,複数子ボーンの処理
+Ignore,無視
+First,最初
+Average,平均
+
+# Forces
+Forces,力
+Integration Type,積分方式
+Simplified,簡易
+Advanced,詳細
+Pull,復元力
+Spring,ばね
+Momentum,慣性
+Stiffness,剛性
+Gravity Falloff,重力減衰
+Immobile Type,固定方式
+All Motion,すべての動き
+World (Experimental),ワールド（実験的）
+# TODO: Immobileは訳語を再確認
+Immobile,固定
+
+# Limits
+Limits,制限
+Limit Type,制限方式
+None,なし
+Angle,角度
+Hinge,ヒンジ
+Polar,極座標
+Max Angle,最大角度
+Max Pitch,最大ピッチ
+Max Yaw,最大ヨー
+Rotation,回転
+Pitch,ピッチ
+Roll,ロール
+Yaw,ヨー
+
+# Collision
+Collision,衝突
+Allow Collision,衝突を許可
+Colliders,コライダー
+
+# Allow Collision - Other
+Content Types,コンテンツタイプ
+Nothing,なし
+Everything,すべて
+Avatar,アバター
+World,ワールド
+# TODO: Collision・Grab・Poseで共通するため訳語を再確認
+Allow Self,自身を許可
+Allow Others,他者を許可
+
+# Stretch & Squish
+Stretch & Squish,伸縮
+Max Stretch,最大伸長
+Max Squish,最大圧縮
+
+# Grab & Pose
+Grab & Pose,つかみ・ポーズ
+Allow Grabbing,つかむことを許可
+Allow Posing,ポーズを許可
+Grab Movement,つかんだときの移動
+Snap To Hand,手にスナップ
+
+# Options
+Options,オプション
+Parameter,パラメーター
+Is Animated,アニメーションを許可
+Reset When Disabled,無効化時にリセット
+
+# Gizmos
+Gizmos,ギズモ
+Show Gizmos,ギズモを表示
+Bone Opacity,ボーンの不透明度
+Limit Opacity,制限の不透明度

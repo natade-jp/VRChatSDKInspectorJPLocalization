@@ -1,0 +1,66 @@
+English,Japanese
+
+# ---------------------
+# VRC Contact Receiver
+# https://creators.vrchat.com/common-components/contacts/
+# ---------------------
+
+Root Transform,ルートトランスフォーム
+
+# Shape
+Shape,形状
+Shape Type,形状タイプ
+Sphere,球
+Capsule,カプセル
+Box,ボックス
+Radius,半径
+Height,高さ
+Size,サイズ
+Position,位置
+Rotation,回転
+
+# Filtering
+Filtering,フィルタリング
+Content Types,コンテンツタイプ
+Allow Self,自身を許可
+Allow Others,他者を許可
+Local Only,ローカルのみ
+
+# Content Types
+Nothing,なし
+Everything,すべて
+Avatar,アバター
+World,ワールド
+
+# Collision Tags
+Collision Tags,衝突タグ
+Add,追加
+Up,上へ
+Down,下へ
+Delete,削除
+
+# Collision Tagsの定義済みタグ名およびタグ選択UIは翻訳対象外
+
+# Receiver
+Receiver,レシーバー
+Receiver Type,レシーバータイプ
+Constant,常時
+On Enter,接触時
+Proximity,近接度
+Parameter,パラメーター
+Min Velocity,最小速度
+
+# Warning
+"You must have at least one collision tag, otherwise this contact won't do anything.",少なくとも1つの衝突タグを設定してください。設定しない場合、このContactは動作しません。
+
+# Help - Constant
+"The parameter will be set to 1 while a contact sender is inside the receiver. Otherwise the value defaults to 0.","Contact SenderがReceiver内にある間、パラメーターは1になります。それ以外の場合は0になります。"
+
+# Help - On Enter
+"Upon first contact if the two contacts' combined velocities are greater then the minVelocity then the parameter will be set to 1 for a single frame. Otherwise the value defaults to 0.","最初に接触したとき、2つのContactの合成速度が最小速度を上回っている場合、パラメーターは1フレームだけ1になります。それ以外の場合は0になります。"
+
+# Help - Proximity
+"Set a value between 0-1 representing how close a contact is to the receiver's center. (0.0 furthest, 1.0 closest) If multiple senders are detected it will give you the closest value.","Receiverの中心へのContactの近さを0～1の値で設定します。（0.0が最も遠く、1.0が最も近い）複数のSenderを検出した場合は、最も近い値になります。"
+
+# Help - Parameter
+"It's not necessary to use a synced parameter as defined by the VRCExpressionParameters object. This parameter is already updated on both the local and remote machine. If you choose to use a synced parameter we recommend using the Local Only option.","VRCExpressionParametersで定義された同期パラメーターを使用する必要はありません。このパラメーターはローカル側とリモート側の両方ですでに更新されます。同期パラメーターを使用する場合は、Local Onlyオプションの使用を推奨します。"

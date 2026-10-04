@@ -1,0 +1,43 @@
+English,Japanese
+
+# ---------------------
+# VRC Contact Sender
+# https://creators.vrchat.com/common-components/contacts/
+# ---------------------
+
+Root Transform,ルートトランスフォーム
+
+# Shape
+Shape,形状
+Shape Type,形状タイプ
+Sphere,球
+Capsule,カプセル
+Box,ボックス
+Radius,半径
+Height,高さ
+Size,サイズ
+Position,位置
+Rotation,回転
+
+# Filtering
+Filtering,フィルタリング
+Content Types,コンテンツタイプ
+Local Only,ローカルのみ
+
+# Content Types
+Nothing,なし
+Everything,すべて
+Avatar,アバター
+World,ワールド
+
+# Collision Tags
+Collision Tags,衝突タグ
+Add,追加
+Up,上へ
+Down,下へ
+Delete,削除
+
+# Collision Tagsの定義済みタグ名およびタグ選択UIは翻訳対象外
+
+# Warning
+"You must have at least one collision tag, otherwise this contact won't do anything.",少なくとも1つの衝突タグを設定してください。設定しない場合、このContactは動作しません。

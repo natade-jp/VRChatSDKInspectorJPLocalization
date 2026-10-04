@@ -1,0 +1,159 @@
+English,Japanese
+
+# ---------------------
+# VRC Avatar Descriptor
+# https://creators.vrchat.com/avatars/avatars-3-0/using-av3-features/
+# ---------------------
+
+# View
+View,ビュー
+View Position,視点位置
+Edit,編集
+
+# LipSync
+LipSync,リップシンク
+Mode,モード
+Default,デフォルト
+Jaw Flap Bone,顎ボーン
+Jaw Flap Blend Shape,顎ブレンドシェイプ
+Viseme Blend Shape,ビセームブレンドシェイプ
+Viseme Parameter Only,ビセームパラメーターのみ
+
+# LipSync - Jaw Flap Bone
+Jaw Bone,顎ボーン
+Rotation States,回転状態
+Closed,閉じる
+Open,開く
+Preview,プレビュー
+
+# LipSync - Jaw Flap Blend Shape
+Face Mesh,顔メッシュ
+Jaw Flap Blend Shape,顎ブレンドシェイプ
+
+# LipSync - Viseme Blend Shape
+# Viseme名（sil、PP、FF、TH、DD、kk、CH、SS、nn、RR、aa、E、ih、oh、ou）は翻訳対象外
+
+# LipSync - Viseme Parameter Only
+# 追加設定項目なし
+
+# Eye Look
+Eye Look,視線
+Enable,有効化
+Disable,無効化
+
+# Eye Look - General
+General,一般
+Eye Movements,目の動き
+Calm,穏やか
+Excited,興奮
+Shy,控えめ
+Confident,自信あり
+
+# Eye Look - Eyes
+Eyes,目
+Transforms,トランスフォーム
+Left Eye Bone,左目ボーン
+Right Eye Bone,右目ボーン
+Rotation States,回転状態
+Looking Straight,正面
+Looking Up,上を見る
+Looking Down,下を見る
+Looking Left,左を見る
+Looking Right,右を見る
+Preview,プレビュー
+
+# Eye Look - Eyelids
+Eyelids,まぶた
+Eyelid Type,まぶたタイプ
+None,なし
+Bones,ボーン
+Blendshapes,ブレンドシェイプ
+
+# Eye Look - Eyelids - Blendshapes
+Eyelids Mesh,まぶたメッシュ
+Blendshape States,ブレンドシェイプ状態
+Blink,まばたき
+Looking Up,上を見る
+Looking Down,下を見る
+Preview,プレビュー
+
+# Eye Look - Eyelids - Bones
+Transforms,トランスフォーム
+Upper Left Eyelid,左上まぶた
+Upper Right Eyelid,右上まぶた
+Lower Left Eyelid,左下まぶた
+Lower Right Eyelid,右下まぶた
+Rotation States,回転状態
+Default,デフォルト
+Upper,上
+Lower,下
+Closed,閉じる
+Looking Up,上を見る
+Looking Down,下を見る
+Linked,連動
+Left,左
+Right,右
+Preview,プレビュー
+
+# Playable Layers
+Playable Layers,再生レイヤー
+Reset to Default,デフォルトに戻す
+
+# Playable Layers - Base
+Base,ベース
+Default Locomotion,デフォルトの移動
+Additive,加算
+Gesture,ジェスチャー
+Default Gesture,デフォルトのジェスチャー
+Action,アクション
+Default Action,デフォルトのアクション
+FX,FX
+
+# Playable Layers - Special
+Special,特殊
+Sitting,座り
+Default Sitting,デフォルトの座り
+TPose,Tポーズ
+Default TPose,デフォルトのTポーズ
+IKPose,IKポーズ
+Default IKPose,デフォルトのIKポーズ
+
+# Playable Layers
+# Animator Controllerを変更しても追加設定項目なし
+
+# Lower Body
+Lower Body,下半身
+Use Auto-Footsteps for 3 and 4 point tracking,3点・4点トラッキングで自動足音を使用
+Force Locomotion animations for 6 point tracking,6点トラッキングで移動アニメーションを強制
+
+# Expressions
+Expressions,表情
+Reset To Default,デフォルトに戻す
+Menu,メニュー
+Parameters,パラメーター
+
+# Expressions
+# Menu・Parametersを変更しても追加設定項目なし
+
+# Colliders
+Colliders,コライダー
+Head,頭
+Torso,胴体
+Hand,手
+Foot,足
+Finger Index,人差し指
+Finger Middle,中指
+Finger Ring,薬指
+Finger Little,小指
+
+# Colliders - Mode
+Automatic,自動
+Custom,カスタム
+Disabled,無効
+Edit,編集
+
+# Colliders - Custom
+Radius,半径
+Height,高さ
+Position,位置
+Rotation,回転
